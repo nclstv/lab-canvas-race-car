@@ -10,13 +10,20 @@ const game = {
   canvas: document.getElementById('canvas'),
   img: backgroundImage,
   frames: 0,
+  speed: 5,
+  y: 0,
+  isRunning: false,
 
   start: function () {
+    if (this.isRunning) return
+    this.isRunning = true
     this.context = this.canvas.getContext('2d')
     this.interval = setInterval(updateGame, 20)
+
   },
   stop: function () {
     clearInterval(this.interval);
+    this.isRunning = false
     this.context.fillStyle = 'black'
     this.context.fillRect(0, 0, 500, 700)
     this.context.fillStyle = 'red'
@@ -26,10 +33,20 @@ const game = {
     this.context.font = '30px Arial'
     this.context.fillText(`Your score is: ${this.points}`, 125, 200, 400)
   },
-  update: function () {
-    this.context.drawImage(this.img, 0, 0, 500, 700)
+  move: function () {
+    this.y += this.speed;
+    this.y %= canvas.height;
   },
-  clear: function() {
+
+  draw: function () {
+    this.context.drawImage(this.img, 0, this.y, 500, 700);
+    if (this.speed < 0) {
+      this.context.drawImage(this.img, 0, this.y + canvas.height, 500, 700);
+    } else {
+      this.context.drawImage(this.img, 0, this.y - canvas.height, 500, 700);
+    }
+  },
+  clear: function () {
     this.context.clearRect(0, 0, 500, 700);
   },
   score: function () {
@@ -135,8 +152,9 @@ function checkGameOver() {
 }
 
 function updateGame() {
+  game.move()
   game.clear()
-  game.update()
+  game.draw()
   player.update()
   updateObstacles()
   checkGameOver()
